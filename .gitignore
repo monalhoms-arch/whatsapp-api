@@ -1,0 +1,29 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.sqlite3
+.DS_Store
+
+# Databases
+test_whatsapp.db
+prod_whatsapp.db
+*.db
+*.sqlite
+
+# Docker
+.dockerignore
