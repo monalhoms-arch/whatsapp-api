@@ -33,6 +33,11 @@ class NotificationRequest(BaseModel):
     phone_number: str
     message: str
     account_type: Literal["customer", "provider", "admin"]
+
+class DirectMessageRequest(BaseModel):
+    phone_number: str
+    message: str
+    is_business: Optional[bool] = False
     
 class NotificationResponse(BaseModel):
     success: bool

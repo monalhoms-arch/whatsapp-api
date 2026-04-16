@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, BackgroundTasks
 from sqlalchemy.orm import Session
 from loguru import logger
-from schemas import NotificationRequest, NotificationResponse
+from schemas import NotificationRequest, NotificationResponse, DirectMessageRequest
 from services.whatsapp_service import send_whatsapp_message
 from database import get_db
 from security import get_api_key
@@ -36,5 +36,29 @@ def send_notification(request: NotificationRequest, background_tasks: Background
     return NotificationResponse(
         success=True,
         message_id="queued_in_background",
+        status="queued"
+    )
+
+@router.post("/direct", response_model=NotificationResponse)
+def send_direct_message(request: DirectMessageRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    """إرسال رسالة مباشرة (بدون أي بادئات) مع مراعاة حالة الحساب"""
+    logger.info(f"Messaging System: Preparing direct message for {request.phone_number}")
+    
+    # تحديد حالة الحساب
+    is_business = request.is_business
+    if is_business is None:
+        db_account = db.query(models.AccountDB).filter(models.AccountDB.phone_number == request.phone_number).first()
+        if db_account:
+            is_business = db_account.is_business_whatsapp
+        else:
+            is_business = False
+
+    # الإرسال مباشرة بدون أي تعديل على النص
+    background_tasks.add_task(send_whatsapp_message, request.phone_number, request.message, is_business)
+    logger.info(f"Direct message queued: {request.phone_number}")
+    
+    return NotificationResponse(
+        success=True,
+        message_id="direct_message_queued",
         status="queued"
     )
