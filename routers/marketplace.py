@@ -2,8 +2,10 @@ from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from sqlalchemy.orm import Session
 from database import get_db
 from services.whatsapp_service import send_whatsapp_message
+from security import get_api_key
 import models, schemas
 import urllib.parse
+from loguru import logger
 
 router = APIRouter()
 print("DEBUG: Marketplace Router Loaded", flush=True)
@@ -32,6 +34,43 @@ def list_providers(db: Session = Depends(get_db)):
     except Exception as e:
         print(f"DEBUG ERROR: {e}", flush=True)
         return []
+
+@router.post("/providers", response_model=schemas.ProviderResponse, dependencies=[Depends(get_api_key)])
+def create_provider(provider: schemas.ProviderCreate, db: Session = Depends(get_db)):
+    """إضافة عامل جديد لقاعدة البيانات (Admin Only)"""
+    logger.info(f"Admin: Adding new provider {provider.full_name}")
+    new_worker = models.Provider(**provider.model_dump())
+    db.add(new_worker)
+    db.commit()
+    db.refresh(new_worker)
+    return new_worker
+
+@router.put("/providers/{provider_id}", response_model=schemas.ProviderResponse, dependencies=[Depends(get_api_key)])
+def update_provider(provider_id: int, provider_data: schemas.ProviderCreate, db: Session = Depends(get_db)):
+    """تعديل بيانات عامل موجود (Admin Only)"""
+    logger.info(f"Admin: Updating provider {provider_id}")
+    db_worker = db.query(models.Provider).filter(models.Provider.id == provider_id).first()
+    if not db_worker:
+        raise HTTPException(status_code=404, detail="العامل غير موجود")
+    
+    for key, value in provider_data.model_dump().items():
+        setattr(db_worker, key, value)
+    
+    db.commit()
+    db.refresh(db_worker)
+    return db_worker
+
+@router.delete("/providers/{provider_id}", dependencies=[Depends(get_api_key)])
+def delete_provider(provider_id: int, db: Session = Depends(get_db)):
+    """حذف عامل نهائياً من قاعدة البيانات (Admin Only)"""
+    logger.info(f"Admin: Deleting provider {provider_id}")
+    db_worker = db.query(models.Provider).filter(models.Provider.id == provider_id).first()
+    if not db_worker:
+        raise HTTPException(status_code=404, detail="العامل غير موجود")
+    
+    db.delete(db_worker)
+    db.commit()
+    return {"success": True, "message": "تم حذف العامل بنجاح"}
 
 @router.post("/send-to-provider")
 def send_to_provider(request: schemas.MarketplaceRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):

@@ -52,6 +52,11 @@ class ProviderResponse(BaseModel):
     job: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
+class ProviderCreate(BaseModel):
+    full_name: str
+    phone: str
+    job: Optional[str] = None
+
 class MarketplaceRequest(BaseModel):
     provider_id: int
     customer_name: str
