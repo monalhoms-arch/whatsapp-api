@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     API_SECRET_KEY: str = "my_super_secret_key_123"
 
     # Database (MySQL for abc.sql)
-    DATABASE_URL: str = "mysql+pymysql://root@localhost/abc"
+    DATABASE_URL: str = "mysql+pymysql://root@127.0.0.1:3306/abc"
     
     # Redis
     REDIS_HOST: str = "localhost"
