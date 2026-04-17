@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
-from routers import otp, notifications, accounts, marketplace
+from routers import otp, notifications, accounts, marketplace, automation
 
 # Create database tables automatically
 Base.metadata.create_all(bind=engine)
@@ -26,10 +26,11 @@ app.include_router(otp.router, prefix="/api/v1/otp", tags=["Security & OTP"])
 app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["Notifications"])
 app.include_router(accounts.router, prefix="/api/v1/accounts", tags=["Account Management"])
 app.include_router(marketplace.router, prefix="/api/v1/marketplace", tags=["Marketplace"])
+app.include_router(automation.router, prefix="/api/v1/automation", tags=["Automation"])
 
 @app.get("/")
 def root():
-    return {"message": "خدمة الواتساب الخارجية تعمل بنجاح (موصولة بقاعدة بيانات تجريبية)"}
+    return {"message": "خدمة الواتساب تعمل بنجاح (موصولة بقاعدة بيانات MySQL المركزة)"}
 
 if __name__ == "__main__":
     import uvicorn
