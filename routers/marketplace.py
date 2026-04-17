@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from sqlalchemy.orm import Session
 from database import get_db
+from services.whatsapp_service import send_whatsapp_message
 import models, schemas
 import urllib.parse
 
@@ -33,8 +34,8 @@ def list_providers(db: Session = Depends(get_db)):
         return []
 
 @router.post("/send-to-provider")
-def send_to_provider(request: schemas.MarketplaceRequest, db: Session = Depends(get_db)):
-    """تجهيز رابط واتساب وتسجيل موعد في قاعدة البيانات"""
+def send_to_provider(request: schemas.MarketplaceRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    """تجهيز رابط واتساب وتسجيل موعد، مع خيار الإرسال المباشر آلياً"""
     provider = db.query(models.Provider).filter(models.Provider.id == request.provider_id).first()
     if not provider:
         raise HTTPException(status_code=404, detail="المزود غير موجود في قاعدة البيانات")
@@ -62,5 +63,17 @@ def send_to_provider(request: schemas.MarketplaceRequest, db: Session = Depends(
 
     encoded_msg = urllib.parse.quote(msg)
     whatsapp_url = f"https://wa.me/{provider.phone}?text={encoded_msg}"
+    
+    # خيار الإرسال الآلي من السيرفر
+    if request.auto_send:
+        # التحقق إذا كان الرقم هو حساب أعمال (Business) من جدول الحسابات
+        is_business = False
+        db_account = db.query(models.AccountDB).filter(models.AccountDB.phone_number == provider.phone).first()
+        if db_account:
+            is_business = db_account.is_business_whatsapp
+        
+        # وضع أمر الإرسال في الخلفية
+        background_tasks.add_task(send_whatsapp_message, provider.phone, msg, is_business)
+        return {"status": "sent", "message": "تم إرسال الطلب آلياً إلى المزود بنجاح.", "redirect": whatsapp_url}
     
     return {"status": "processing", "redirect": whatsapp_url}

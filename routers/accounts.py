@@ -17,7 +17,10 @@ def add_account(account: AccountCreate, db: Session = Depends(get_db)):
     db_account = db.query(models.AccountDB).filter(models.AccountDB.phone_number == account.phone_number).first()
     if db_account:
         logger.warning(f"Account Add Failed: {account.phone_number} already exists.")
-        raise HTTPException(status_code=400, detail="Account with this phone number already exists")
+        raise HTTPException(
+            status_code=400, 
+            detail="هذا الرقم مسجل مسبقاً في النظام. يرجى استخدام رقم آخر أو تسجيل الدخول."
+        )
     
     new_account = models.AccountDB(**account.model_dump())
     db.add(new_account)
