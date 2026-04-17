@@ -37,7 +37,35 @@ def get_account(phone_number: str, db: Session = Depends(get_db)):
     db_account = db.query(models.AccountDB).filter(models.AccountDB.phone_number == phone_number).first()
     if not db_account:
         logger.warning(f"Account Lookup Failed: {phone_number} not found.")
-        raise HTTPException(status_code=404, detail="Account not found locally")
+        raise HTTPException(status_code=404, detail="الحساب غير موجود في قاعدة البيانات المحلية.")
     
-    logger.info(f"Account found: {phone_number}")
     return db_account
+
+@router.put("/{phone_number}", response_model=AccountResponse)
+def update_account(phone_number: str, account_data: AccountCreate, db: Session = Depends(get_db)):
+    """تعديل بيانات حساب موجود"""
+    logger.info(f"Account DB: Request to update account {phone_number}")
+    db_account = db.query(models.AccountDB).filter(models.AccountDB.phone_number == phone_number).first()
+    if not db_account:
+        raise HTTPException(status_code=404, detail="لا يمكن التعديل، الحساب غير موجود.")
+    
+    for key, value in account_data.model_dump().items():
+        setattr(db_account, key, value)
+    
+    db.commit()
+    db.refresh(db_account)
+    logger.success(f"Account {phone_number} updated successfully.")
+    return db_account
+
+@router.delete("/{phone_number}")
+def delete_account(phone_number: str, db: Session = Depends(get_db)):
+    """حذف حساب نهائياً من قاعدة البيانات"""
+    logger.info(f"Account DB: Request to delete account {phone_number}")
+    db_account = db.query(models.AccountDB).filter(models.AccountDB.phone_number == phone_number).first()
+    if not db_account:
+        raise HTTPException(status_code=404, detail="لا يمكن الحذف، الحساب غير موجود.")
+    
+    db.delete(db_account)
+    db.commit()
+    logger.success(f"Account {phone_number} deleted successfully.")
+    return {"success": True, "message": f"تم حذف الحساب {phone_number} بنجاح."}
