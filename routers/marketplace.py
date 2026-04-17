@@ -5,12 +5,32 @@ import models, schemas
 import urllib.parse
 
 router = APIRouter()
+print("DEBUG: Marketplace Router Loaded", flush=True)
 
 @router.get("/providers", response_model=list[schemas.ProviderResponse])
 def list_providers(db: Session = Depends(get_db)):
     """جلب قائمة المزودين من قاعدة البيانات abc"""
-    providers = db.query(models.Provider).all()
-    return providers
+    try:
+        from sqlalchemy import text
+        
+        # 🟢 التشخيص الجوهري
+        print("--- DATABASE DIAGNOSTICS ---", flush=True)
+        db_name = db.execute(text("SELECT DATABASE()")).scalar()
+        db_version = db.execute(text("SELECT VERSION()")).scalar()
+        tables = db.execute(text("SHOW TABLES")).fetchall()
+        
+        print(f"DEBUG: Connected to DB [{db_name}] | Version: {db_version}", flush=True)
+        print(f"DEBUG: Tables found: {[t[0] for t in tables]}", flush=True)
+
+        count = db.execute(text("SELECT COUNT(*) FROM provider")).scalar()
+        print(f"DEBUG: RAW SQL COUNT in 'provider' = {count}", flush=True)
+
+        providers = db.query(models.Provider).all()
+        print(f"DEBUG: SQLAlchemy found {len(providers)} providers.", flush=True)
+        return providers
+    except Exception as e:
+        print(f"DEBUG ERROR: {e}", flush=True)
+        return []
 
 @router.post("/send-to-provider")
 def send_to_provider(request: schemas.MarketplaceRequest, db: Session = Depends(get_db)):
