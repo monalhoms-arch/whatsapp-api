@@ -5,8 +5,8 @@ class Settings(BaseSettings):
     # App API Security
     API_SECRET_KEY: str = "my_super_secret_key_123"
 
-    # Database
-    DATABASE_URL: str = "sqlite:///./prod_whatsapp.db"
+    # Database (MySQL for abc.sql)
+    DATABASE_URL: str = "mysql+pymysql://root@localhost/abc"
     
     # Redis
     REDIS_HOST: str = "localhost"

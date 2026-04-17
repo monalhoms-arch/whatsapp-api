@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
-from routers import otp, notifications, accounts
+from routers import otp, notifications, accounts, marketplace
 
 # Create database tables automatically
 Base.metadata.create_all(bind=engine)
@@ -28,6 +28,7 @@ app.add_middleware(
 app.include_router(otp.router, prefix="/api/v1/otp", tags=["Security & OTP"])
 app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["Notifications"])
 app.include_router(accounts.router, prefix="/api/v1/accounts", tags=["Account Management"])
+app.include_router(marketplace.router, prefix="/api/v1/marketplace", tags=["Marketplace"])
 
 @app.get("/")
 def root():
