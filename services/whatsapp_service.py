@@ -12,7 +12,7 @@ def send_whatsapp_message(phone_number: str, message: str, is_business: bool = F
     # تنظيف رقم الهاتف (حذف علامة الزائد) ليتوافق مع مكتبات الواتساب
     clean_phone = phone_number.replace("+", "").strip()
     
-    url = f"{settings.EVOLUTION_API_URL}/message/sendText/{settings.EVOLUTION_INSTANCE_NAME}"
+    url = f"{settings.EVOLUTION_API_URL}/message/sendText/{settings.EVOLUTION_INSTANCE_ID}"
     headers = {
         "apikey": settings.EVOLUTION_API_TOKEN,
         "Content-Type": "application/json"

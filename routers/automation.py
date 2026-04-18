@@ -9,7 +9,7 @@ router = APIRouter(dependencies=[Depends(get_api_key)])
 @router.get("/status")
 def get_automation_status():
     """التحقق من حالة الاتصال بسيرفر Evolution API"""
-    url = f"{settings.EVOLUTION_API_URL}/instance/connectionState/{settings.EVOLUTION_INSTANCE_NAME}"
+    url = f"{settings.EVOLUTION_API_URL}/instance/connectionState/{settings.EVOLUTION_INSTANCE_ID}"
     headers = {"apikey": settings.EVOLUTION_API_TOKEN}
     
     try:

@@ -21,8 +21,9 @@ class Settings(BaseSettings):
 
     # WhatsApp Evolution API Integration
     EVOLUTION_API_URL: str = "http://localhost:8080"
-    EVOLUTION_API_TOKEN: str = "global_token_from_evolution"
+    EVOLUTION_API_TOKEN: str = "my_evolution_token_123"
     EVOLUTION_INSTANCE_NAME: str = "main_instance"
+    EVOLUTION_INSTANCE_ID: str = "b5c65aa5-cce2-43bf-aaa5-54414e3dbec6"
 
     model_config = SettingsConfigDict(env_file=".env")
 
