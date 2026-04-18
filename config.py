@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     EVOLUTION_API_URL: str = "http://localhost:8080"
     EVOLUTION_API_TOKEN: str = "D4AA62DE53AC-4583-ACBB-8F8898EEECFA"
     EVOLUTION_INSTANCE_NAME: str = "main_instance"
-    EVOLUTION_INSTANCE_ID: str = "b5c65aa5-cce2-43bf-aaa5-54414e3dbec6"
+    EVOLUTION_INSTANCE_ID: str = "محمد"
 
     model_config = SettingsConfigDict(env_file=".env")
 
