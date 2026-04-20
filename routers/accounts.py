@@ -8,6 +8,11 @@ import models
 
 router = APIRouter(dependencies=[Depends(get_api_key)])
 
+@router.get("/", response_model=list[AccountResponse])
+def get_all_accounts(db: Session = Depends(get_db)):
+    """جلب جميع الحسابات المسجلة في السيرفر"""
+    return db.query(models.AccountDB).all()
+
 @router.post("/", response_model=AccountResponse)
 def add_account(account: AccountCreate, db: Session = Depends(get_db)):
     """
