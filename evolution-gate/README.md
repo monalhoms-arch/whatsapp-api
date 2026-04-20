@@ -28,23 +28,19 @@ docker compose up -d
 ### 2. Login to Evolution Manager / تسجيل الدخول
 
 **English:**  
-1. Open http://localhost:8080  
-2. Enter credentials:  
-   - Server URL: `http://localhost:8080`  
-   - API Key Global: `my_evolution_token_123`  
-3. Click Login.
+1. Open http://localhost:3000  
+2. The Manager will auto-connect to Evolution API assuming `http://evolution_api:8080` (or `http://localhost:8080`)  
+3. Use the global API Key: `my_evolution_token_123`  
 
 **العربية:**  
-1. افتح http://localhost:8080  
-2. أدخل:  
-   - Server URL: `http://localhost:8080`  
-   - API Key Global: `my_evolution_token_123`  
-3. اضغط Login.
+1. افتح http://localhost:3000  
+2. مدير البوابة سيتصل بـ Evolution API تلقائياً.  
+3. استخدم الـ API Key: `my_evolution_token_123`  
 
 ### 3. Access Manager Dashboard / مدير البوابة
-**English:** After login, navigate to **http://localhost:8080/manager**
+**English:** After login, you are in the Manager.
 
-**العربية:** بعد الدخول, اذهب إلى **http://localhost:8080/manager**
+**العربية:** بعد الدخول, ستكون داخل مدير البوابة.
 
 ### 4. Create Instance & Pair Phone / إنشاء Instance وربط الهاتف
 
