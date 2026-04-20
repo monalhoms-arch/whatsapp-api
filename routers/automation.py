@@ -40,13 +40,15 @@ def create_instance(name: str):
     }
     payload = {
         "instanceName": name,
-        "token": "", # Let Evolution generate it
+        "integration": "WHATSAPP-BAILEYS",
         "qrcode": True
     }
     
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=15)
-        response.raise_for_status()
+        if response.status_code != 201 and response.status_code != 200:
+            logger.error(f"Evolution API Error: {response.status_code} - {response.text}")
+            raise HTTPException(status_code=response.status_code, detail=f"Evolution API Error: {response.text}")
         return response.json()
     except Exception as e:
         logger.error(f"Error creating instance: {e}")
