@@ -1,11 +1,10 @@
 fastapi
 uvicorn
 sqlalchemy
-pymysql
+psycopg2-binary==2.9.9
 pydantic
 pydantic-settings
 loguru
 redis
 httpx
 apscheduler
-pymysql

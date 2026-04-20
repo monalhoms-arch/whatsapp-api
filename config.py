@@ -5,8 +5,8 @@ class Settings(BaseSettings):
     # App API Security
     API_SECRET_KEY: str = "my_super_secret_key_123"
 
-    # Database (MySQL for abc.sql)
-    DATABASE_URL: str = "mysql+pymysql://root@127.0.0.1:3306/abc"
+# Database (PostgreSQL - matches docker-compose)
+    DATABASE_URL: str = "postgresql+psycopg2://postgres:598624713@localhost:5432/whatsapp_data"
     
     # Redis
     REDIS_HOST: str = "localhost"
@@ -21,9 +21,9 @@ class Settings(BaseSettings):
 
     # WhatsApp Evolution API Integration
     EVOLUTION_API_URL: str = "http://localhost:8080"
-    EVOLUTION_API_TOKEN: str = "D4AA62DE53AC-4583-ACBB-8F8898EEECFA"
-    EVOLUTION_INSTANCE_NAME: str = "main_instance"
-    EVOLUTION_INSTANCE_ID: str = "b5c65aa5-cce2-43bf-aaa5-54414e3dbec6"
+    EVOLUTION_API_TOKEN: str = "56A5801CBC7B-404D-9D1A-9E9823778D3B"
+    EVOLUTION_INSTANCE_NAME: str = "moha"
+    EVOLUTION_INSTANCE_ID: str = "moha"
 
     model_config = SettingsConfigDict(env_file=".env")
 

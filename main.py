@@ -30,7 +30,7 @@ app.include_router(automation.router, prefix="/api/v1/automation", tags=["Automa
 
 @app.get("/")
 def root():
-    return {"message": "خدمة الواتساب تعمل بنجاح (موصولة بقاعدة بيانات MySQL المركزة)"}
+    return {"message": "خدمة الواتساب تعمل بنجاح (موصولة بقاعدة بيانات PostgreSQL المركزة)"}
 
 if __name__ == "__main__":
     import uvicorn
