@@ -3,16 +3,19 @@ import requests
 from loguru import logger
 from config import settings
 
-def send_whatsapp_message(phone_number: str, message: str, is_business: bool = False):
+def send_whatsapp_message(phone_number: str, message: str, is_business: bool = False, instance_id: str = None):
     """
     إرسال رسالة حقيقية عبر Evolution API مع استخدام Loguru لتسجيل الأحداث
     """
-    logger.info(f"إعداد السيرفر لإرسال رسالة واتساب إلى {phone_number} (حساب أعمال: {is_business})")
+    # Use provided instance_id or fallback to default from settings
+    target_instance = instance_id or settings.EVOLUTION_INSTANCE_ID
+    
+    logger.info(f"إعداد السيرفر لإرسال رسالة واتساب إلى {phone_number} باستخدام النسخة {target_instance}")
     
     # تنظيف رقم الهاتف (حذف علامة الزائد) ليتوافق مع مكتبات الواتساب
     clean_phone = phone_number.replace("+", "").strip()
     
-    url = f"{settings.EVOLUTION_API_URL}/message/sendText/{settings.EVOLUTION_INSTANCE_ID}"
+    url = f"{settings.EVOLUTION_API_URL}/message/sendText/{target_instance}"
     headers = {
         "apikey": settings.EVOLUTION_API_TOKEN,
         "Content-Type": "application/json"
