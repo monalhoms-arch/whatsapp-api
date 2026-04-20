@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from sqlalchemy.orm import Session
 from database import get_db
@@ -12,28 +13,14 @@ print("DEBUG: Marketplace Router Loaded", flush=True)
 
 @router.get("/providers", response_model=list[schemas.ProviderResponse])
 def list_providers(db: Session = Depends(get_db)):
-    """جلب قائمة المزودين من قاعدة البيانات abc"""
+    """جلب قائمة المزودين من قاعدة البيانات الموحدة"""
     try:
-        from sqlalchemy import text
-        
-        # 🟢 التشخيص الجوهري
-        print("--- DATABASE DIAGNOSTICS ---", flush=True)
-        db_name = db.execute(text("SELECT DATABASE()")).scalar()
-        db_version = db.execute(text("SELECT VERSION()")).scalar()
-        tables = db.execute(text("SHOW TABLES")).fetchall()
-        
-        print(f"DEBUG: Connected to DB [{db_name}] | Version: {db_version}", flush=True)
-        print(f"DEBUG: Tables found: {[t[0] for t in tables]}", flush=True)
-
-        count = db.execute(text("SELECT COUNT(*) FROM provider")).scalar()
-        print(f"DEBUG: RAW SQL COUNT in 'provider' = {count}", flush=True)
-
         providers = db.query(models.Provider).all()
-        print(f"DEBUG: SQLAlchemy found {len(providers)} providers.", flush=True)
+        logger.info(f"Marketplace: Fetched {len(providers)} providers from DB.")
         return providers
     except Exception as e:
-        print(f"DEBUG ERROR: {e}", flush=True)
-        return []
+        logger.error(f"Marketplace Fetch Error: {e}")
+        raise HTTPException(status_code=500, detail="فشل الاتصال بقاعدة البيانات.")
 
 @router.post("/providers", response_model=schemas.ProviderResponse, dependencies=[Depends(get_api_key)])
 def create_provider(provider: schemas.ProviderCreate, db: Session = Depends(get_db)):
@@ -116,3 +103,52 @@ def send_to_provider(request: schemas.MarketplaceRequest, background_tasks: Back
         return {"status": "sent", "message": "تم إرسال الطلب آلياً إلى المزود بنجاح.", "redirect": whatsapp_url}
     
     return {"status": "processing", "redirect": whatsapp_url}
+
+@router.get("/appointments", response_model=list[schemas.AppointmentResponse])
+def get_appointments(
+    customer_name: Optional[str] = None, 
+    provider_id: Optional[int] = None, 
+    db: Session = Depends(get_db)
+):
+    """جلب قائمة المواعيد والمهام مع تصفية اختيارية حسب الاسم أو المعرف"""
+    query = db.query(models.Appointment)
+    
+    if customer_name:
+        query = query.filter(models.Appointment.customer_name.ilike(f"%{customer_name}%"))
+    
+    if provider_id:
+        query = query.filter(models.Appointment.provider_id == provider_id)
+    
+    appointments = query.order_by(models.Appointment.appointment_datetime.desc()).all()
+    
+    # تحسين البيانات لإضافة اسم المزود
+    results = []
+    for appt in appointments:
+        provider = db.query(models.Provider).filter(models.Provider.id == appt.provider_id).first()
+        res = schemas.AppointmentResponse.model_validate(appt)
+        res.provider_name = provider.full_name if provider else "غير معروف"
+        results.append(res)
+        
+    return results
+
+@router.patch("/appointments/{appointment_id}", response_model=schemas.AppointmentResponse)
+def update_appointment_status(
+    appointment_id: int, 
+    payload: schemas.AppointmentUpdate, 
+    db: Session = Depends(get_db)
+):
+    """تحديث حالة الموعد (مثلاً: تأكيد، إلغاء، إكمال)"""
+    db_appt = db.query(models.Appointment).filter(models.Appointment.id == appointment_id).first()
+    if not db_appt:
+        raise HTTPException(status_code=404, detail="الموعد غير موجود")
+    
+    db_appt.status = payload.status
+    db.commit()
+    db.refresh(db_appt)
+    
+    # إضافة اسم المزود للرد
+    provider = db.query(models.Provider).filter(models.Provider.id == db_appt.provider_id).first()
+    res = schemas.AppointmentResponse.model_validate(db_appt)
+    res.provider_name = provider.full_name if provider else "غير معروف"
+    
+    return res

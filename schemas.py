@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, Literal
+from datetime import datetime
 
 # مسارات الحسابات
 class AccountBase(BaseModel):
@@ -64,3 +65,16 @@ class MarketplaceRequest(BaseModel):
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     auto_send: bool = False
+
+class AppointmentResponse(BaseModel):
+    id: int
+    provider_id: int
+    provider_name: Optional[str] = None
+    customer_name: str
+    appointment_datetime: datetime
+    status: str
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+class AppointmentUpdate(BaseModel):
+    status: str
