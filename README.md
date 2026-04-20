@@ -1,42 +1,23 @@
-# WhatsApp Microservice API
+# 💬 WhatsApp Core Microservice
 
-A standalone, production-ready WhatsApp microservice built with **FastAPI**, **Redis**, and **PostgreSQL**.
-This service acts as an abstraction layer to connect any SaaS (like Labor Rental Systems) to WhatsApp APIs (e.g., Evolution API, Baileys, Meta API).
+This directory contains the core microservice responsible for handling all communications, notifications, and database interactions for the **"Khidmati"** platform.
 
-## 🚀 Features
-- **API Security**: All endpoints protected via `X-API-KEY`.
-- **Advanced OTP System**: 
-  - Generates secure random codes.
-  - Codes are **hashed via bcrypt** before caching.
-  - Automatically expires codes via **Redis TTL (5 Mins)**.
-  - **Smart Rate-Limiting**: Blocks users for 15 minutes after 3 failed attempts.
-- **Asynchronous Execution**: Uses FastAPI `BackgroundTasks` to queue messages instantly (Returns 200 OK without blocking), ensuring the main SaaS doesn't face latency issues.
-- **Dockerized**: Fully deployable via `docker-compose`.
+## 📌 Key Features
+- **Security & OTP:** Manages the dissemination of highly secure OTP codes protected against spam using `Redis` rate-limiting.
+- **Notifications Engine:** Handles direct and automated message dispatch to clients and workers.
+- **Marketplace Management:** Controls the centralized PostgreSQL database (`whatsapp_data`) handling `provider` and `appointments` tables.
+- **Evolution API Integration:** Formats and routes direct HTTP messages to the local Evolution API container network.
 
-## 🛠️ Stack
-- **FastAPI** (Python 3.10+)
-- **Redis** (OTP & Blocks)
-- **PostgreSQL** (Accounts Database)
-- **Evolution API** (WhatsApp Gateway)
+## 🛠️ Configuration
+Ensure the `.env` file or constants are correctly set for:
+- Evolution API endpoint (typically `http://localhost:8080`) and global API Token.
+- `PostgreSQL` connection strings.
+- `Redis` caching endpoint.
 
-## 🐳 Easy Deployment (Docker)
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/monalhoms-arch/whatsapp-api.git
-   cd whatsapp-api
-   ```
-2. Configure your Environment Variables:
-   - Create a `.env` file referencing the structure of `config.py`.
-3. Launch with Docker Compose:
-   ```bash
-   docker-compose up -d --build
-   ```
-This will spin up the API (`8000`), a PostgreSQL DB, and a Redis Cache.
-
-## 🔐 Endpoints Structure
-- `/api/v1/otp/send`: Generates OTP and dispatches WhatsApp background request.
-- `/api/v1/otp/verify`: Strict OTP verification using Redis Hash matches.
-- `/api/v1/notifications/send`: Sends dynamic messages based on user constraints (Customer, Provider, Admin).
-
-## 📝 Logging
-Powered by **Loguru** to maintain detailed audit logs for every request attempt, block action, or message dispatch failure.
+## 🚀 How to Run
+Runs on **Port 8000**.
+```bash
+pip install -r requirements.txt
+python main.py
+```
+> Swagger Interactive Docs available at: `http://localhost:8000/docs`
