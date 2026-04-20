@@ -32,6 +32,10 @@ app.include_router(automation.router, prefix="/api/v1/automation", tags=["Automa
 def root():
     return {"message": "خدمة الواتساب تعمل بنجاح (موصولة بقاعدة بيانات PostgreSQL المركزة)"}
 
+@app.get("/api/v1/health")
+def health_check():
+    return {"status": "online", "service": "whatsapp"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
