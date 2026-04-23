@@ -35,7 +35,7 @@ services:
     restart: always
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/nginx.conf
-    #command: >
+      #command: >
       #sh -c "sed -i 's/must-revalidate//g' /etc/nginx/conf.d/nginx.conf && nginx -g 'daemon off;'"
     environment:
       - VITE_EVOLUTION_API_URL=http://127.0.0.1:8080
@@ -60,7 +60,7 @@ services:
     networks:
       - evolution_net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rev -d evolution"]
+      test: [ "CMD-SHELL", "pg_isready -U rev -d evolution" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -69,13 +69,13 @@ services:
     image: redis:7-alpine
     container_name: evolution_redis
     restart: always
-    command: ["redis-server", "--appendonly", "yes"]
+    command: [ "redis-server", "--appendonly", "yes" ]
     volumes:
       - evolution_redis_data:/data
     networks:
       - evolution_net
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5

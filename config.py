@@ -2,29 +2,36 @@ from typing import Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    # App API Security
-    API_SECRET_KEY: str = "my_super_secret_key_123"
+    # ───────── App API Security ─────────
+    API_SECRET_KEY: str = "change_me_in_env"
 
-# Database (PostgreSQL - matches docker-compose)
-    DATABASE_URL: str = "postgresql+psycopg2://postgres:598624713@localhost:5432/whatsapp_data"
-    
-    # Redis
+    # ───────── Database ─────────
+    # يجب تعريف DATABASE_URL في ملف .env
+    DATABASE_URL: str = "sqlite:///./whatsapp_fallback.db"
+
+    # ───────── Redis ─────────
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
     REDIS_PASSWORD: Optional[str] = None
-    
-    # Security Rules
+
+    # ───────── Security Rules ─────────
     OTP_EXPIRATION_MINUTES: int = 5
     MAX_FAILED_ATTEMPTS: int = 3
     BLOCK_DURATION_MINUTES: int = 15
 
-    # WhatsApp Evolution API Integration
-    EVOLUTION_API_URL: str = "http://localhost:8080"
-    EVOLUTION_API_TOKEN: str = "my_evolution_token_123"
-    EVOLUTION_INSTANCE_NAME: str = "moha"
-    EVOLUTION_INSTANCE_ID: str = "moha"
+    # ───────── WhatsApp Evolution API ─────────
+    EVOLUTION_API_URL: str = "http://127.0.0.1:8080"
+    EVOLUTION_API_TOKEN: str = "change_me_in_env"
+    EVOLUTION_INSTANCE_NAME: str = "default"
+    EVOLUTION_INSTANCE_ID: str = "default"
 
-    model_config = SettingsConfigDict(env_file=".env")
+    # ───────── Presentation Mode ─────────
+    # True  = محاكاة ناجحة للعرض (لا ترسل رسائل حقيقية)
+    # False = إرسال حقيقي عبر Evolution API
+    WHATSAPP_MOCK_MODE: bool = True
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 settings = Settings()
+
