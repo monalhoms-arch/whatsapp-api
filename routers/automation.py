@@ -9,12 +9,20 @@ router = APIRouter(dependencies=[Depends(get_api_key)])
 
 @router.get("/status")
 def get_automation_status():
-    """التحقق من حالة النظام الإجمالية"""
-    return {
+    """التحقق من حالة النظام الإجمالية ومزود الخدمة النشط"""
+    provider = settings.WHATSAPP_PROVIDER.lower()
+    response = {
         "status": "online",
-        "api_url": settings.EVOLUTION_API_URL,
-        "default_instance": settings.EVOLUTION_INSTANCE_NAME
+        "provider": provider,
     }
+    if provider == "meta":
+        response["meta_api_version"] = settings.META_API_VERSION
+        response["meta_phone_number_id"] = settings.META_PHONE_NUMBER_ID
+        response["meta_api_configured"] = bool(settings.META_API_TOKEN and settings.META_API_TOKEN != "change_me_in_env")
+    else:
+        response["evolution_api_url"] = settings.EVOLUTION_API_URL
+        response["default_instance"] = settings.EVOLUTION_INSTANCE_NAME
+    return response
 
 @router.get("/instances")
 def list_instances():
